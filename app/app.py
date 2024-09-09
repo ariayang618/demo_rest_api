@@ -1,23 +1,17 @@
-from contextlib import asynccontextmanager
-
 import uvicorn
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from database.start import create_db
+from common import create_db, logger
 from resource.user import router as user_router
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Code to run before the application starts
-    print("Running task before service starts")
-    # Example: Initialize database connection or perform a startup task
+async def lifespan(app_: FastAPI):
+    logger.info("Running task before service starts")
     await create_db()
-
-    yield  # This point allows the app to start running
-
+    yield
     # # Code to run after the application stops (optional)
-    # print("Running task after service stops")
     # await some_cleanup_task()
 
 
@@ -32,11 +26,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 app.include_router(user_router)
-
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World!"}
 
 
 if __name__ == '__main__':
